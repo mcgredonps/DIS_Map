@@ -76,7 +76,14 @@
   // Firefox keeps asking every time this is called, and you can't
   // get in fast enough to choose the "always allow" function. 
   window.setInterval(getLocation, 5000);
-  window.setInterval(heartbeat, 5000);
+  
+  // Every few seconds send an update espdu to the server informing it of our position
+  window.setInterval(heartbeat, 3000);
+  
+  // Every few seconds look at the list of entities, and see if there are any we
+  // have not heard from in some amount of time. If the period of silence exceeds
+  // the threshold, remove it.
+  window.setInterval(prune, 20000);
   
   
   // Largely swiped from http://jsfiddle.net/6RS2z/356/
@@ -95,7 +102,8 @@
           geometry: new  
             ol.geom.Point(ol.proj.transform(montereyLonLat, 'EPSG:4326',   'EPSG:3857')),
         name: 'Monterey Icon',
-        eid:JSON.stringify(espdu.entityID)
+        eid:JSON.stringify(espdu.entityID),
+        lastHeardFrom:new Date()
         });
         
         // add it to the vectorSource that will be used in the icon layer
@@ -235,7 +243,8 @@
                     geometry: new  
                       ol.geom.Point(ol.proj.transform(networkLonLat, 'EPSG:4326',   'EPSG:3857')),
                   eid:eidString,
-                  name:"from network"
+                  name:"from network",
+                  lastHeardFrom: new Date()
                   });
                   
                vectorSource.addFeature(theFeature);
@@ -332,7 +341,9 @@
     * an update.
     */
    function heartbeat()
-   {            
+   {      
+     
+       
        // We don't have a current position; sending an update is sort of pointless
        if( browserPosition === undefined)
            return;
@@ -381,11 +392,40 @@
        var newPosition = [browserPosition.coords.longitude, browserPosition.coords.latitude];
        var point = new ol.geom.Point(ol.proj.transform(newPosition, 'EPSG:4326',   'EPSG:3857'));
        montereyFeature.setGeometry(point);
-         
+       
+       // You MUST use the setProperties function rather than trying to set it
+       // directly with dot notation.
+       montereyFeature.setProperties({lastHeardFrom: new Date()});
+        
        // This triggers a redraw on the map for the vector layer only
        vectorSource.changed();
 
-   }    
+   } 
+   
+   /** 
+    * Removes icons from the map if  we haven't heard from in some amount of time
+    */
+   function prune()
+   {       
+       var TIMEOUT = 120000; // 2 min
+       var now = new Date();
+
+       var allFeatures = vectorSource.getFeatures();
+       var arrayLength = allFeatures.length;
+              
+       // traverse in reverse order (deleting while traversing)
+       for(idx = arrayLength; idx > 0; idx--)
+        {
+            var thisFeature = allFeatures[idx-1];
+            var props = thisFeature.getProperties();
+            
+            if(props.lastHeardFrom.getTime() + TIMEOUT < now.getTime())
+            {
+                console.log("Pruned feature ", props);
+                vectorSource.removeFeature(thisFeature);
+            }
+        }       
+   }
 
 
 </script>
