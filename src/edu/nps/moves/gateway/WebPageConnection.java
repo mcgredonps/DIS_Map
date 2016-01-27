@@ -35,6 +35,9 @@ public class WebPageConnection implements DISEndpoint
     /** The far side of the connection */
     private RemoteEndpoint remote;
     int connectionNumber = 0;
+    
+    AreaOfInterest aoim = null;
+    
     ConnectionManager connectionManager = ConnectionManager.getConnectionManager();
    
 
@@ -50,6 +53,35 @@ public class WebPageConnection implements DISEndpoint
         this.remote = session.getRemote();
         count++;
         this.connectionNumber = count;
+        
+        // Add javascript AOIM to the connection
+        
+        String script = "load ('scripts/dis7.js')\n" +
+                     "var pduFactory = new dis.PduFactory();" +
+                     "function aoim(data) " +
+                      "{  "
+                    + "  var pdu = pduFactory.createPdu(data); "
+                    + "  var espdu = new dis.EntityStatePdu();"
+                    + "  if(espdu.pduType != 1) "
+                    + "     return false;"
+                    + "   "
+                    + "  return true;"
+                    + "}";
+        
+        /*
+        String script = "load ('scripts/dis7.js')\n" +
+                     "var pduFactory = new dis.PduFactory();" +
+                     "function aoim(data) " +
+                      "{  "
+                    + "  var espdu = new dis.EntityStatePdu();"
+                    + "  if(espdu.entityLocation.x < 0.0) "
+                    + "     return false;"
+                    + "   "
+                    + "  return true;"
+                    + "}";
+        */
+        
+        this.aoim = new AreaOfInterest(script);
         
         ConnectionManager.getConnectionManager().addConnection(this);
     }
@@ -126,6 +158,14 @@ public class WebPageConnection implements DISEndpoint
      */
     public void sendBinaryToClient(byte[] buf)
     {
+        // Check if this PDU passes the critera of AOIM for this
+        // connnection
+        
+        /*
+        System.out.println("checking aoim");
+        if( !(aoim.pduPassesAOIM(buf)))
+            return;
+        */
         try
         {
             remote.sendBytes(ByteBuffer.wrap(buf));

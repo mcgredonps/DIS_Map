@@ -163,6 +163,7 @@ public class ConnectionManager implements Runnable
      */
     public void repeatBinaryMessage(byte[] data, DISEndpoint sender)
     {
+        //System.out.println("Repeating DIS pdu to connections");
         try
         {
             // Optionally we can convert the data into a Java object
@@ -172,11 +173,13 @@ public class ConnectionManager implements Runnable
             while(it.hasNext())
             {
                DISEndpoint aConnection = (DISEndpoint)it.next();
+               //System.out.println("checking for repeat out connection " + aConnection);
 
                 // Repeat the message to all clients, except the client that sent it.
                 // If the sender is null, always send it to all of the connections
                 if(sender == null || !aConnection.equals(sender))
                 {
+                    //System.out.println("Sending to " + aConnection);
                     aConnection.sendBinaryToClient(data);
                 }
             }

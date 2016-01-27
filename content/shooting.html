@@ -1,0 +1,102 @@
+
+<html>
+    <head>
+        <title>Shooting at Stuff</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         <script type="text/javascript" src="javascript/dis.js"></script>
+    </head>
+    <body onLoad="initialize()">
+        
+        <div>Shooting test</div>
+        <div id="entityData">
+            <table id="entityTable">
+                
+            </table>
+        </div>
+        
+        <SCRIPT type="text/javascript">
+            /** This works if you're running client and server on one host. To 
+             * have it work with a remote server, replace localhost with the IP
+             * or name of the server.
+             */
+            var WEBSOCKET_URL="ws://localhost:8282";
+            var websocket;
+            /** A likely map location */
+            var montereyLocation = {'latitude':36.595, 'longitude':-121.877};
+            var allDisEntities = new Object();
+            var pduFactory = new dis.PduFactory();
+            
+            /**
+             * Initialize websocket
+             * 
+             * @returns {undefined}
+             */
+            function initialize()
+            {
+                websocket = new WebSocket(WEBSOCKET_URL);
+
+                // Set the format we want to use to receive binary messages
+                 websocket.binaryType = 'arraybuffer';
+
+                 // Attach functions to the the web socket for various events
+                 websocket.onopen = function(evt){console.log("Opened websocket");};//console.log("websocket onopen");};
+                 websocket.onclose = function(evt){console.log("websocket close", evt);};
+                 websocket.onerror = function(evt){console.log("websocket error", evt.data);};
+
+                 websocket.onmessage = function(evt)
+                 { 
+                     console.log("Received message");
+                     var disMessage = pduFactory.createPdu(evt.data);
+                     
+                     switch(disMessage.pduType)
+                     {
+                        case 1: 
+                            console.log("ESPDU");
+                            break;
+                            
+                        default:
+                            break;
+                     }
+                 }
+                
+            }
+            
+            function updateEntityTable()
+            {
+                // Remove table rows
+                console.log("emptying table");
+                var table = document.getElementById("entityTable");
+                var tableRows = table.getElementsByTagName('tr');
+                var rowCount = tableRows.length;
+                
+                for(var x = rowCount-1; x>0; x--)
+                {
+                    table.removeChild(tableRows[x]);
+                }
+                
+                
+                // Populate with data from entity list
+                console.log("populating table");
+                for(var property in allDisEntities)
+                {
+                    
+                
+                
+                /*
+                 var table = document.getElementById("entityTable");
+                 console.log("table=", table);
+                 table.style.height="100px";
+                 var caption = table.createCaption();
+                 caption.innerHTML="This is the caption";
+                 var row1 = table.insertRow(0);
+                 var cell1 = row1.insertCell(0);
+                 var cell2 = row1.insertCell(1);
+                 cell1.innerHTML="fozzie";
+                 cell2.innerHTML="bear";
+                 */
+                }
+            }
+            </script>
+    </body>
+</html>

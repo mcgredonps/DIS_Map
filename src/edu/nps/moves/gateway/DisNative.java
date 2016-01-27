@@ -92,6 +92,8 @@ public class DisNative implements Runnable, DISEndpoint
                 DatagramPacket packet = new DatagramPacket( buffer, buffer.length );
                 multicastSocket.receive(packet);
                 
+                //System.out.println("got DIS pdu native");
+                
                 // Turn the DIS binary into a Java object. This is optional,
                 // but useful; we can perhaps do filtering based on the location,
                 // and right now we only send ESPDU's to web clients. In contrast
@@ -144,7 +146,9 @@ public class DisNative implements Runnable, DISEndpoint
 
                     if(aPdu instanceof EntityStatePdu)
                     {
+                        
                         EntityStatePdu espdu = (EntityStatePdu)aPdu;
+                        //System.out.println("Got espdu for " + new String(espdu.getMarking().getCharacters()));
                         if(entities.get(espdu.getEntityID()) == null)
                         {
                             entities.put(espdu.getEntityID(), aPdu);

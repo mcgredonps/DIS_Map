@@ -16,7 +16,7 @@ to lat/lon/alt.
 <!DOCTYPE html>
 <html>
     <head>
-        <title></title>
+        <title>Google Maps</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
         
@@ -69,7 +69,7 @@ to lat/lon/alt.
             /** EntityStatePdu for the entity represented by this page. This is
              *  periodically sent as a heartbeat, so others can find us. */
             var espdu = new dis.EntityStatePdu();
-            espdu.marking.setMarking("Browser");
+            espdu.marking.setMarking("DISMap");
             //console.log(espdu.marking);
             
             //console.log(JSON.stringify(espdu));
@@ -314,7 +314,7 @@ to lat/lon/alt.
                 espdu.entityLocation.y = disCoordinates.y;
                 espdu.entityLocation.z = disCoordinates.z;
                 
-                espdu.marking.setMarking("Browser");
+                espdu.marking.setMarking("DISMap");
                 
                 // Marshal out the PDU that represents the local browser's position
                 // to the IEEE DIS binary format. We allocate a big buffer to write,

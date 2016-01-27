@@ -13,6 +13,8 @@ public interface DISEndpoint
     /** Send binary format DIS to an endpoint. */
    public void sendBinaryToClient(byte[] buf);
    
+   
+   
    /** Send JSON format DIS to a client */
    public void sendToClient(String aMessage);
 
