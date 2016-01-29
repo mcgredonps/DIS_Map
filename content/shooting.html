@@ -11,8 +11,12 @@
         <div>Shooting test</div>
         <div id="entityData">
             <table id="entityTable">
-                
-            </table>
+              
+                <table>
+                    <tr><th>Marking</th><th>Entity ID</th><th>Kill</th></tr>
+                    
+                    <tr><td>marking</td><td>1</td><td><input type="button" name="kill" value="Kill" onClick="buttonClick('kill1')"</td></tr>
+                </table>
         </div>
         
         <SCRIPT type="text/javascript">
@@ -24,8 +28,13 @@
             var websocket;
             /** A likely map location */
             var montereyLocation = {'latitude':36.595, 'longitude':-121.877};
-            var allDisEntities = new Object();
+            var allEntities = new Object();
             var pduFactory = new dis.PduFactory();
+            
+            function buttonClick(val)
+            {
+                console.log("Button click", val);
+            }
             
             /**
              * Initialize websocket
@@ -53,12 +62,21 @@
                      {
                         case 1: 
                             console.log("ESPDU");
+                            var entityId = disMessage.entityID;
+                            var eidString = JSON.stringify(entityId);
+                            var theEntity = allEntities[eidString];
+                            if(theEntity === undefined)
+                            {
+                                allEntities[eidString] = disMessage;
+                            }
                             break;
                             
                         default:
                             break;
                      }
                  }
+                 
+                 var timerID = setInterval(updateEntityTable, 10000);
                 
             }
             
@@ -69,32 +87,29 @@
                 var table = document.getElementById("entityTable");
                 var tableRows = table.getElementsByTagName('tr');
                 var rowCount = tableRows.length;
+                console.log("row count:", rowCount);
                 
                 for(var x = rowCount-1; x>0; x--)
                 {
                     table.removeChild(tableRows[x]);
+                    console.log("Removed row");
                 }
                 
                 
                 // Populate with data from entity list
                 console.log("populating table");
-                for(var property in allDisEntities)
+                var table = document.getElementById("entityTable");
+                for(var property in allEntities)
                 {
                     
+                   console.log("property:", property);
+                   console.log("espdu:", allEntities[property]);
                 
-                
-                /*
-                 var table = document.getElementById("entityTable");
-                 console.log("table=", table);
-                 table.style.height="100px";
-                 var caption = table.createCaption();
-                 caption.innerHTML="This is the caption";
                  var row1 = table.insertRow(0);
                  var cell1 = row1.insertCell(0);
                  var cell2 = row1.insertCell(1);
                  cell1.innerHTML="fozzie";
                  cell2.innerHTML="bear";
-                 */
                 }
             }
             </script>
