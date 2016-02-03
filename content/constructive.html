@@ -37,9 +37,9 @@
                   Application<input type="text" name="application" id="application" value="23"><br>
                   <br>
                   <b>Location</b></br>
-                  Latitude<input type="text" name="latitude" id="latitude" value="36.595"><br>
-                  Longitude<input type="text" name="longitude" id="longitude" value="-121.877"><br>
-                  Altitude<input type="text" name="altitude" id="altitude" value="0"><br>
+                  Latitude (Decimal degrees):<input type="text" name="latitude" id="latitude" value="31.4426"><br>
+                  Longitude<input type="text" name="longitude" id="longitude" value="45.2273"><br>
+                  Altitude (meters)<input type="text" name="altitude" id="altitude" value="10"><br>
                   
                   <br>
                   <b>Marking</b>
@@ -67,8 +67,11 @@
             /** A likely map location */
             var montereyLocation = {'latitude':36.595, 'longitude':-121.877};
             var allDisEntities = new Object();
-            //var pduFactory = new dis.PduFactory();
+            var pduFactory = new dis.PduFactory();
             var espdu = new dis.EntityStatePdu();
+            
+            var rifleMunition = new dis.EntityType();
+            var damageHits = 0;
             
             
             espdu.entityID.entity = Math.round(Math.random() * 64000);
@@ -121,6 +124,7 @@
                 latLonAlt.lat = lat;
                 latLonAlt.lon = lon;
                 latLonAlt.alt = alt;
+                console.log("Geodetic location:", latLonAlt);
 
                 var disCoordinates = conversion.getXYZfromLatLonAltDegrees(latLonAlt);
                 espdu.entityLocation.x = disCoordinates.x;
@@ -160,6 +164,17 @@
              */
             function initialize()
             {
+                
+                // Initialize munition type. M855 5.56 round
+                rifleMunition.country = 225;   // usa
+                rifleMunition.domain = 8;      // anti-personnel
+                rifleMunition.entityKind = 2;  // Munition
+                rifleMunition.category = 2;    // ballistic
+                rifleMunition.subcategory = 1; // 5.56 caliber
+                rifleMunition.spec = 5;        // M855 (vs tracer, etc)
+                rifleMunition.extra = 0;
+                
+                
                 websocket = new WebSocket(WEBSOCKET_URL);
 
                 // Set the format we want to use to receive binary messages
@@ -173,24 +188,88 @@
                  // We don't really need to receive anything, just blindly send
                  websocket.onmessage = function(evt)
                  { 
-                     /*
-                     console.log("Received message");
                      var disMessage = pduFactory.createPdu(evt.data);
-                     
+                     //console.log("PDU:", disMessage);
                      switch(disMessage.pduType)
                      {
                         case 1: 
-                            console.log("ESPDU");
+                            //console.log("ESPDU");
                             break;
+                            
+                        case 2:
+                           console.log("Fire PDU:", disMessage);
+                           break;
+
+                        case 3:
+                           console.log("Detonation PDU");
+                           assessDamageToOurEntities(disMessage);
+                           break;
                             
                         default:
                             break;
                      }
-                     */
+                    
                  }
                 
             }
-           
+   
+   /**
+    * Write code to assess damage to our entity here. Assume
+    * that we are killed by two or more 5.56 rifle rounds that
+    * hit us. We receive the detonation PDU, which contains the
+    * target ID and the munition. if 1) we're the target, and 
+    * 2) the munition is a rifle round, and (3) the impact
+    * is in the general area, assume we've been shot. You can 
+    * make use of the entityIDsEqual() and munitionsEqual() 
+    * functions.
+    * 
+    * @param {type} detonationPdu
+    * @returns {undefined}
+    */
+ function assessDamageToOurEntities(detonationPdu)
+ {
+     console.log("Assessing damage for detonation:", detonationPdu);
+     
+     // Information from the detonation PDU
+     var detonationMunition = detonationPdu.burstDescriptor.munition;
+     var targetEntityID = detonationPdu.targetEntityID;
+     var detonationLocation = detonationPdu.locationInWorldCoordinates;
+     
+     // Our information
+     var ourLocation = espdu.entityLocation;
+     var ourEntityID = espdu.entityID;
+     
+     // Assess damage here
+ }
+ 
+ function entityIDsEqual(eid1, eid2)
+ {
+     if(eid1.site === eid2.site &&
+        eid1.application === eid2.application &&
+        eid1.entity === eid2.entity)
+    {
+        return true;
+    }
+
+    return false;
+ }
+ 
+ 
+ function munitionsEqual(firstMunition, secondMunition)
+ {
+     if(firstMunition.domain === secondMunition.domain &&
+        firstMunition.entityKind === secondMunition.entityKind &&
+        firstMunition.country === secondMunition.country &&
+        firstMunition.category === secondMunition.category &&
+        firstMunition.subcategory === secondMunition.subcategory &&
+        firstMunition.specific === secondMunition.specific &&
+        firstMunition.extra === secondMunition.extra)
+        {
+          return true;
+        }
+
+    return false;
+ }
             </script>
     </body>
 </html>

@@ -173,16 +173,18 @@ to lat/lon/alt.
                switch(disMessage.pduType)
                {
                    case 1: //console.log("ESPDU");
+                       //console.log("ESPDU:", disMessage);
                        break;
                        
                    // We don't actually do any logic with these yet
-                   case 2: console.log("FirePdu", disMessage);
+                   case 2: console.log("FirePdu:", disMessage);
                        return;
                        
-                   case 3: console.log("DetonationPdu", disMessge);
+                   case 3: console.log("DetonationPdu:", disMessage);
                        return;
                        
                    default:
+                       console.log("PDU:", disMessage);
                        return;  
                }
               
@@ -224,6 +226,7 @@ to lat/lon/alt.
                    var contentString = "<b>Entity ID:</b>" + JSON.stringify(disMessage.entityID) + "<br>";
                    contentString = contentString + "<b>Marking:</b>" + disMessage.marking.getMarking() + "<br>";
                    contentString = contentString + "<b>Entity Type:</b>" + JSON.stringify(disMessage.entityType) + "<br>";
+                   contentString = contentString + "<b>Location:</b>" + latLonAlt.latitude + ", " +latLonAlt.longitude + ", " + latLonAlt.altitude + "<br>"
                    var infowindow = new google.maps.InfoWindow({content: contentString});
                    
                    var newEntityLocation = new google.maps.LatLng(latLonAlt.latitude, latLonAlt.longitude);
@@ -349,6 +352,7 @@ to lat/lon/alt.
                  var contentString = "<b>Entity ID:</b> " + JSON.stringify(espdu.entityID) + "<br>";
                  contentString = contentString + "<b>Marking:</b> " + espdu.marking.getMarking() + "<br>";
                  contentString = contentString + "<b>Entity Type:</b> " + JSON.stringify(espdu.entityType) + "<br>";
+                 contentString = contentString + "<b>Location:</b>" + latLonAlt.lat + ", " + latLonAlt.lon + ", " + latLonAlt.alt + "<br>";
                  var infowindow = new google.maps.InfoWindow({content: contentString});
                  google.maps.event.addListener(ourMarker, 'click', function() 
                    {

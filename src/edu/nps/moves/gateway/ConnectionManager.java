@@ -179,7 +179,7 @@ public class ConnectionManager implements Runnable
                 // If the sender is null, always send it to all of the connections
                 if(sender == null || !aConnection.equals(sender))
                 {
-                    //System.out.println("Sending to " + aConnection);
+                    System.out.println("Sending to " + aConnection);
                     aConnection.sendBinaryToClient(data);
                 }
             }
