@@ -25,9 +25,9 @@
             <form id="EspduForm" action="form_action.asp">
                 <b>Entity Type Information</b><br>
                   Kind: <input type="text" name="entitykind" id="entitykind" value="1"><br>
-                  Domain: <input type="text" name="domain" id="domain" value="3"><br>
+                  Domain: <input type="text" name="domain" id="domain" value="1"><br>
                   Country <input type="text" name="country" id="country" value="225"><br>
-                  Category<input type="text" name="category" id="category" value="1"><br>
+                  Category<input type="text" name="category" id="category" value="2"><br>
                   Subcategory<input type="text" name="subcategory" id="subcategory" value="1"><br>
                   Specific<input type="text" name="specific" id="specific" value="1"><br>
                   Extra<input type="text" name="extra" id="extra" value="1"><br><br>
@@ -35,6 +35,7 @@
                   <b>Entity ID site and application</b><br>
                   Site<input type="text" name="site" id="site" value="48"><br>
                   Application<input type="text" name="application" id="application" value="23"><br>
+                  Entity (Entity ID is randomly assigned)<br>
                   <br>
                   <b>Location</b></br>
                   Latitude (Decimal degrees):<input type="text" name="latitude" id="latitude" value="31.4426"><br>
@@ -48,7 +49,7 @@
                   
                   <br>
                   <b>Send Frequency </b><br>
-                  Send Frequency (ms)<input type="text" name="sendfrequency" id="sendfrequency" value="5000"><br>
+                  Send Frequency (ms)<input type="text" name="sendfrequency" id="sendfrequency" value="1000"><br>
                           
             <input type="button" name="submit" value="Submit" onClick="constructiveSend(this.form)" >
 </form>
@@ -110,6 +111,7 @@
                 espdu.entityID.application = parseInt(document.getElementById("application").value);
                 espdu.entityID.entity = Math.round(Math.random() * 65000);
                 
+                     
                 // Marking
                 espdu.marking.setMarking(document.getElementById("marking").value);
                 
@@ -269,6 +271,83 @@
         }
 
     return false;
+ }
+ 
+                /*
+                * The entityAppearance field in the espdu is a 32 bit integer. To save
+                * space, several different fields are contained within it. 
+                * Specifically:
+                * 
+                *  Name      bit position        Purpose
+                *  ----      ------------        --------
+                *  Paint            0            0 = uniform color, 1=camo
+                *  Mobility         1            0 = no mobility kill, 1 = mobility kill
+                *  Fire Power       2            0 = no firepower kill, 1 = firepower kill
+                *  Damage           3-4          0=no damange, 1=slight, 2=moderate, 3=destroyed
+                *  Smoke            5-6          0=not smoking, 1=smoke plume, 2=emitting engine smoke, 3=engine smoke + smoke plume
+                *  Trailing effects 7-8          dust cloud, 0=none, 1=small, 2=medium, 3=large
+                *  hatch            9-11         0=NA, 1=hatch closed, 2=popped, 3=popped + person visible, 4=open, 5=open and visible
+                *  head lights      12           0=off, 1=on
+                *  tail light       13           0=off, 1=on
+                *  brake lights     14           0=off, 1=on
+                *  flaming          15           0=none, 1=flames present
+                *  launcher         16           0=not raised, 1=raised
+                *  camo type        17-18        0=desert, 1=winter, 2=forest
+                *  concealed        19           0=not concealed, 1=prepared concealed position (netting, etc)
+                *  frozen status    20           0=not frozen, 1=frozen (in simulation terms)
+                *  power plant      22           0=power plant off 1=on
+                *  state            23           0=active, 1=deactivated
+                *  tent             24           0=not extended 1=extended
+                *  ramp             25           0=not extended, 1=extended
+                *  blackout lights  26           0=off, 1=on
+                *  blackout brake   27           0=off, 1=on
+                *  spot lights      28           0=off, 1=on
+                *  interior lights  29           0=off, 1=on
+                *  unused           30-31
+                */
+ 
+ /**
+  * Set the degree of damage on an entity that we control
+  * 
+  * @param {type} espdu entity state PDU
+  * @param {type} damageLevel,0=no damange, 1=slight, 2=moderate, 3=destroyed
+  * @returns {undefined}
+  */
+ function setDamage(espdu, damageLevel)
+ {
+     var shifted = damageLevel;
+     shifted = shifted << 3;
+     espdu.entityAppearance = espdu.entityAppearance | shifted;   
+ }
+ 
+ /**
+  * Set the types of smoke emitted on an entity we control
+  * 
+  * @param {type} espdu the espdu
+  * @param {type} smoke 0=not smoking, 1=smoke plume, 2=emitting engine smoke, 3=engine smoke + smoke plume
+  * @returns {undefined}
+  */
+ function setSmoke(espdu, smoke)
+ {
+     var shifted = smoke;
+     shifted = shifted << 5;
+     espdu.entityAppearance = espdu.entityAppearance | shifted;  
+     
+ }
+ 
+ /**
+  * Set whether the entity should be drawen flaming or not
+  * 
+  * @param {type} espdu
+  * @param {type} flames, 0 = no flames, 1= flames
+  * @returns {undefined}
+  */
+ function setFlames(espdu, flames)
+ {
+     var shifted = flames;
+     shifted = shifted << 15;
+     espdu.entityAppearance = espdu.entityAppearance | shifted;   
+     
  }
             </script>
     </body>
