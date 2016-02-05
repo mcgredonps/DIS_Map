@@ -307,7 +307,8 @@
                 */
  
  /**
-  * Set the degree of damage on an entity that we control
+  * Set the degree of damage on an entity that we control. Receivers should
+  * draw the entity accordingly.
   * 
   * @param {type} espdu entity state PDU
   * @param {type} damageLevel,0=no damange, 1=slight, 2=moderate, 3=destroyed
@@ -321,7 +322,8 @@
  }
  
  /**
-  * Set the types of smoke emitted on an entity we control
+  * Set the types of smoke emitted on an entity we control. Receivers should draw
+  * the entity accordingly. 
   * 
   * @param {type} espdu the espdu
   * @param {type} smoke 0=not smoking, 1=smoke plume, 2=emitting engine smoke, 3=engine smoke + smoke plume
@@ -336,7 +338,7 @@
  }
  
  /**
-  * Set whether the entity should be drawen flaming or not
+  * Set whether the entity should be drawn flaming or not
   * 
   * @param {type} espdu
   * @param {type} flames, 0 = no flames, 1= flames
