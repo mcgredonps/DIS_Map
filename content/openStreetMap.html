@@ -376,16 +376,12 @@
        espdu.marking.setMarking("Browser");
 
        // Marshal out the PDU that represents the local browser's position
-       // to the IEEE DIS binary format. We allocate a big buffer to write,
-       // and if the actual data occupies less than that, trim to fit.
+       // to the IEEE DIS binary format. We allocate a big buffer to write
 
        var dataBuffer = new ArrayBuffer(1000); // typically 144 bytes, make it bigger for safety
        var outputStream = new dis.OutputStream(dataBuffer);
        espdu.encodeToBinaryDIS(outputStream);
-
-       // Trim to fit
-       var trimmedData = dataBuffer.slice(0, outputStream.currentPosition);
-       websocket.send(trimmedData);
+       websocket.send(outputStream.toByteArray());
 
        // update our marker position
        var features = vectorSource.getFeatures()

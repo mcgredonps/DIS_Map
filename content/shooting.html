@@ -139,9 +139,8 @@
         var outputStream = new dis.OutputStream(dataBuffer);
         firePdu.encodeToBinaryDIS(outputStream);
 
-        // Trim to fit
-        var trimmedData = dataBuffer.slice(0, outputStream.currentPosition);
-        websocket.send(trimmedData);
+        // Send it
+        websocket.send(outputStream.toByteArray());
         console.log("Send firePDU:", firePdu);
    }
    
@@ -228,9 +227,8 @@
         var outputStream = new dis.OutputStream(dataBuffer);
         detonationPdu.encodeToBinaryDIS(outputStream);
 
-        // Trim to fit
-        var trimmedData = dataBuffer.slice(0, outputStream.currentPosition);
-        websocket.send(trimmedData);
+        // Send it
+        websocket.send(outputStream.toByteArray());
         console.log("Send detonationPdu", detonationPdu);
    }
 

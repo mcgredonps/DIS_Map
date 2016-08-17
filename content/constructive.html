@@ -152,9 +152,7 @@
                 var outputStream = new dis.OutputStream(dataBuffer);
                 espdu.encodeToBinaryDIS(outputStream);
                 
-                // Trim to fit
-                var trimmedData = dataBuffer.slice(0, outputStream.currentPosition);
-                websocket.send(trimmedData);
+                websocket.send(outputStream.toByteArray());
                 //console.log("Sent pdu ", espdu);
                 
             }
