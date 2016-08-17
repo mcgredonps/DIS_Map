@@ -137,7 +137,7 @@
         // Send Fire PDU
         var dataBuffer = new ArrayBuffer(1000); // typically 144 bytes, make it bigger for safety
         var outputStream = new dis.OutputStream(dataBuffer);
-        firePdu.encodeToBinaryDIS(outputStream);
+        firePdu.encodeToBinary(outputStream);
 
         // Send it
         websocket.send(outputStream.toByteArray());
@@ -225,7 +225,7 @@
         // Send Fire PDU
         var dataBuffer = new ArrayBuffer(1000); // typically 144 bytes, make it bigger for safety
         var outputStream = new dis.OutputStream(dataBuffer);
-        detonationPdu.encodeToBinaryDIS(outputStream);
+        detonationPdu.encodeToBinary(outputStream);
 
         // Send it
         websocket.send(outputStream.toByteArray());
