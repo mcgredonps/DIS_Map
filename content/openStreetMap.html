@@ -71,16 +71,7 @@
   
   
   networkSetup(WEBSOCKET_URL); // Set up the network, etc.
-  getLocation();               // Get the location (lat/lon) of the browser this is running on
-  initializeLocalEspdu();      // Initialize the PDU that represents this browser
-  
-  // Use the geolocation API to find the current location periodically.
-  // Firefox keeps asking every time this is called, and you can't
-  // get in fast enough to choose the "always allow" function. 
-  window.setInterval(getLocation, 5000);
-  
-  // Every few seconds send an update espdu to the server informing it of our position
-  window.setInterval(heartbeat, 3000);
+ 
   
   // Every few seconds look at the list of entities, and see if there are any we
   // have not heard from in some amount of time. If the period of silence exceeds
@@ -177,8 +168,6 @@
         
         if(window.WebSocket)
             websocket = new WebSocket(WEBSOCKET_URL);
-        else if(Window.MozWebSocket)
-            websocket = new MozWebSocket(WEBSOCKET_URL);
         else
             alert("This web browser does not support web sockets");
         
@@ -318,26 +307,9 @@
        //console.log("Browser geolocation fired; Latitude:", position.coords.latitude , "Longitude: " + position.coords.longitude); 
    }
    
-   function initializeLocalEspdu()
-   {
-        espdu.marking.setMarking("Browser");
-       // Entity ID
-        espdu.entityID.site = 42;
-        espdu.entityID.application = 17;
-        espdu.entityID.entity = Math.round(Math.random() * 16000); // Unique (ish) ID
-
-        // What type of entity this is--in this case a dismounted infantry guy
-        espdu.entityType.entityKind = 3;   // life form
-        espdu.entityType.domain = 1;       // land
-        espdu.entityType.country = 225;    // US
-        espdu.entityType.cat = 1;          // dismounted infantry
-        espdu.entityType.subcategory = 17; // Mini-14! A-Team roolz!
-        espdu.entityType.specific = 1;     // number of people
-
-        espdu.timestamp = 1;               // Timestamp is bogus--should fix this. Just needs to be incremented at a miminim
-   }
-   
    /**
+    * No longer called--google changed their API out from under me
+    *
     * Called periodicaly to send out an update of our position. Uses the
     * browser geolocation routines to set the PDUs location, which is useful
     * for mobile devices. If we have no local position fix, do not send out
